@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="default">
+
+<head>
+    <div th:insert="~{default :: head}"></div>
+    <script data-th-src="@{/js/main.js}"></script>
+</head>
+
+<body class="w3-light-grey">
+
+<div th:insert="~{default :: #mySidebar}"></div>
+
+<div class="w3-main page-content">
+
+
+        <div class="report-table">
+        <table id="reports_table" class="table-striped">
+            <thead>
+            <tr>
+                <th>Маршрут №</th>
+                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Старт&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Стоп&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                <th>Длит., мин</th>
+                <th>Наименование</th>
+                <th>Моточасы</th>
+                <th>Нагр., %</th>
+                <th>Масса, т</th>
+                <th>Остановлено (Аварийно, штатно)</th>
+                <th>Счет. <br> предаварий</th>
+                <th>Макс. <br> Т подшип.</th>
+                <th>Макс. Т <br> схода</th>
+            </tr>
+            </thead>
+            <tbody id="reports-body">
+            <tr class="result" data-th-each="report : ${reports}">
+
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+</div>
+
+<div th:insert="~{default :: #snackbar}"></div>
+
+<script>
+    $('#table-panel').show();
+    $("#auto-start-btn").addClass( "color-start" );
+</script>
+
+<script>
+    w3_select(document.getElementById('index_href'))
+</script>
+
+<script>
+    var months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    var days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+    $( "#report-date-input" ).datepicker({
+        dateFormat: 'yy-mm-dd',
+        monthNames : months,
+        dayNamesMin : days,
+    });
+
+    $( "#report-date-end" ).datepicker({
+        dateFormat: 'yy-mm-dd',
+        monthNames : months,
+        dayNamesMin : days,
+    });
+
+    $('#start-form').submit(function(){
+        $.ajax({
+            url: $('#start-form').attr('action'),
+            type: 'POST',
+            data : $('#start-form').serialize(),
+            success: function(){
+                $('#reports_table tbody').empty();
+                flux.start();
+            }
+        });
+        return false;
+    });
+
+     $('#check_end_date').change(function() {
+                if(this.checked) {
+                    $('#end_date_row').attr('style','display: block');
+                }
+                else {
+                    $('#end_date_row').attr('style','display: none');
+                }
+    });
+</script>
+
+</body>
+
+</html>
