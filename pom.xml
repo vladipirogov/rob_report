@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>org.wincc</groupId>
 	<artifactId>report</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>report</name>
 	<description>Demo project for Spring Boot</description>
 

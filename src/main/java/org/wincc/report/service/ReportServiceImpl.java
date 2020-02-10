@@ -22,10 +22,9 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,7 +33,6 @@ public class ReportServiceImpl implements ReportService{
     private static final String REP_FOLDER = "/static/report/";
     private static final String REP_EXT = ".jrxml";
     private static final String REPORT = "report";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private NamedParameterJdbcTemplate template;
@@ -48,8 +46,8 @@ public class ReportServiceImpl implements ReportService{
             Report report = new Report();
             report.setRouteRunId(resultSet.getLong("route_run_id"));
             report.setRouteId(resultSet.getInt("route_id"));
-            report.setDateStart(resultSet.getTimestamp("date_time_start").toLocalDateTime());
-            report.setDateEnd(resultSet.getTimestamp("date_time_end").toLocalDateTime());
+            report.setDateStart(Optional.ofNullable(resultSet.getTimestamp("date_time_start")).map(date ->date.toLocalDateTime()).orElse(null));
+            report.setDateEnd(Optional.ofNullable(resultSet.getTimestamp("date_time_end")).map(date ->date.toLocalDateTime()).orElse(null));
             report.setTimeWork(resultSet.getInt("time_work"));
             report.setElNum(resultSet.getInt("el_num"));
             report.setName(resultSet.getString("name"));
@@ -62,9 +60,7 @@ public class ReportServiceImpl implements ReportService{
             report.setTBeltMax(resultSet.getInt("t_belt_max"));
             return report;
         });
-        return result.stream().
-                peek(report -> clearGroupRoute(report))
-                .collect(Collectors.toList());
+        return result;
     }
 
     @Override
@@ -96,17 +92,24 @@ public class ReportServiceImpl implements ReportService{
      * @return
      */
     private String getQuery() {
-       return "select * from view_report r \n" +
-               "where r.date_time_start between :date_start and  :date_end \n" +
-               "order by r.route_run_id asc, r.el_num";
+       return "select " +
+               "r.route_run_id,\n " +
+               "\tcase when r.el_num = 1 then r.route_id else null end as route_id, \n" +
+               "\tcase when r.el_num = 1 then r.date_time_start else null end as date_time_start,\n" +
+               "\tcase when r.el_num = 1 then r.date_time_end else null end as date_time_end,\n" +
+               "\tcase when r.el_num = 1 then r.time_work else null end as time_work, \n" +
+               "\tr.el_num,\n" +
+               "\tr.name,\n" +
+               "\tr.hrs,\n" +
+               "\tr.avg_load,\n" +
+               "\tr.prf,\n" +
+               "\tr.id_alarm,\n" +
+               "\tr.pal,\n" +
+               "\tr.t_max,\n" +
+               "\tr.t_belt_max " +
+               "from view_report r \n" +
+               "where CAST(r.date_time_start AS DATE) BETWEEN convert(date,:date_start) AND convert(date,:date_end) \n" +
+               "order by r.date_time_start, r.el_num";
     }
 
-    private void clearGroupRoute(Report report) {
-        if(report.getElNum() !=1) {
-            report.setRouteId(null);
-            report.setDateStart(null);
-            report.setDateEnd(null);
-            report.setTimeWork(null);
-        }
-    }
 }

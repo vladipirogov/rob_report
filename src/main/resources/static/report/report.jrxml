@@ -66,7 +66,7 @@
 	r.t_belt_max
 			from view_report r
 			where CAST(r.date_time_start AS DATE) BETWEEN convert(date,$P{date_time}) AND convert(date,$P{end_date_time})
-order by r.route_run_id asc, r.el_num]]>
+order by r.date_time_start, r.el_num]]>
 		</queryString>
 		<field name="route_run_id" class="java.lang.Long">
 			<property name="com.jaspersoft.studio.field.label" value="route_run_id"/>
@@ -131,7 +131,7 @@ order by r.route_run_id asc, r.el_num]]>
 	r.t_belt_max
 		from view_report r
 where CAST(r.date_time_start AS DATE) BETWEEN convert(date,$P{date_time}) AND convert(date,$P{end_date_time})
-order by r.route_run_id asc, r.el_num]]>
+order by r.date_time_start, r.el_num]]>
 	</queryString>
 	<background>
 		<band splitType="Stretch"/>
