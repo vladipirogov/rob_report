@@ -45,10 +45,10 @@ public class ReportServiceImpl implements ReportService{
         List<Report> result = template.query(getQuery(), parameters, (resultSet, i) -> {
             Report report = new Report();
             report.setRouteRunId(resultSet.getLong("route_run_id"));
-            report.setRouteId(resultSet.getInt("route_id"));
+            report.setRouteId(Optional.ofNullable(resultSet.getBigDecimal("route_id")).map(route -> route.intValue()).orElse(null));
             report.setDateStart(Optional.ofNullable(resultSet.getTimestamp("date_time_start")).map(date ->date.toLocalDateTime()).orElse(null));
             report.setDateEnd(Optional.ofNullable(resultSet.getTimestamp("date_time_end")).map(date ->date.toLocalDateTime()).orElse(null));
-            report.setTimeWork(resultSet.getInt("time_work"));
+            report.setTimeWork(Optional.ofNullable(resultSet.getBigDecimal("time_work")).map(time -> time.intValue()).orElse(null));
             report.setElNum(resultSet.getInt("el_num"));
             report.setName(resultSet.getString("name"));
             report.setHrs(resultSet.getInt("hrs"));
